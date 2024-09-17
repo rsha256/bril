@@ -1,0 +1,43 @@
+@main {
+  size: int = const 512;
+  arr: ptr<int> = alloc size;
+  call @fill_array arr size;
+  checksum: int = call @adler32 arr size;
+  temp_unused: int = const 42;  # Unused variable (dead code)
+  nop;
+  print checksum;
+  free arr;
+}
+
+# Calculate the modulo of the two numbers using arithmetic
+@mod(r: int, s: int): int {
+  x: int = div r s;
+  y: int = mul x s;
+  result: int = sub r y;
+  ret result;
+}
+
+# Fills the array with values 0, 1, 2, ...
+@fill_array(arr: ptr<int>, size:int) {
+  one: int = const 1;
+  two: int = const 2;  # Should be removed
+  three: int = const 3;  # Should be removed
+  four: int = const 4;  # Should be removed
+  curr: int = const 0;
+  loc: ptr<int> = id arr;
+.loop:
+  store loc curr;
+  loc: ptr<int> = ptradd loc one;
+  curr: int = add curr one;
+  continue: bool = lt curr size;
+  nop;  # Should be removed
+  br continue .loop .exit;
+.exit:
+  nop;  # Should be removed
+}
+
+# Some dead code below
+@unused_function() {
+  x: int = const 10;  # This whole function should be removed
+  nop;
+}
