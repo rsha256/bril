@@ -27,7 +27,7 @@
   {
     "file": "clobber-arg.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 1;\n  b: int = const 2;\n.lbl:\n}"
+    "result": "@main {\n.lbl:\n}"
   },
   {
     "file": "clobber-fold.bril",
@@ -52,7 +52,7 @@
   {
     "file": "fold-comparisons.bril",
     "directory": "lvn",
-    "result": "@main(arg1: int, arg2: int) {\n  a: int = const 4;\n  b: int = const 3;\n}"
+    "result": "@main(arg1: int, arg2: int) {\n}"
   },
   {
     "file": "idchain-nonlocal.bril",
@@ -72,7 +72,7 @@
   {
     "file": "logical-operators.bril",
     "directory": "lvn",
-    "result": "@main(arg1: bool, arg2: bool) {\n  t: bool = const true;\n  f: bool = const false;\n}"
+    "result": "@main(arg1: bool, arg2: bool) {\n}"
   },
   {
     "file": "nonlocal-clobber.bril",
@@ -102,7 +102,7 @@
   {
     "file": "rename-fold.bril",
     "directory": "lvn",
-    "result": "@main {\n  v1: int = const 4;\n  lvn.0: int = mul v1 v2;\n  lvn.1: int = add v1 v2;\n  v2: int = const 3;\n  print lvn.0;\n  print lvn.1;\n}"
+    "result": "@main {\n  v1: int = const 4;\n  v2: int = const 0;\n  lvn.0: int = mul v1 v2;\n  lvn.1: int = add v1 v2;\n  print lvn.0;\n  print lvn.1;\n}"
   },
   {
     "file": "if-orig.bril",
@@ -157,7 +157,7 @@
   {
     "file": "combo.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 1;\n  lvn.0: int = add a b;\n  b: int = const 3;\n  print lvn.0;\n}"
+    "result": "@main {\n  a: int = const 1;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
   },
   {
     "file": "diamond.bril",
@@ -167,12 +167,12 @@
   {
     "file": "double-pass.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
   },
   {
     "file": "double.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
   },
   {
     "file": "reassign-dkp.bril",
@@ -217,7 +217,7 @@
   {
     "file": "loop-branch.bril",
     "directory": "to_ssa",
-    "result": "@func: int {\n  n: int = const 5;\n  ret n;\n}\n@loop(infinite: bool, print: bool) {\n.entry:\n.loop.header:\n  br infinite .loop.body .loop.end;\n.loop.body:\n  br print .loop.print .loop.next;\n.loop.print:\n  lvn.0: int = call @func;\n  print lvn.0;\n.loop.next:\n  jmp .loop.header;\n.loop.end:\n}\n@main {\n  infinite: bool = const false;\n  print: bool = const true;\n  call @loop infinite print;\n}"
+    "result": "@func: int {\n  n: int = const 5;\n  ret n;\n}\n@loop(infinite: bool, print: bool) {\n.entry:\n.loop.header:\n  br infinite .loop.body .loop.end;\n.loop.body:\n  br print .loop.print .loop.next;\n.loop.print:\n  print v;\n.loop.next:\n  jmp .loop.header;\n.loop.end:\n}\n@main {\n}"
   },
   {
     "file": "loop.bril",
