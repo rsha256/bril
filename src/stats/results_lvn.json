@@ -1,0 +1,237 @@
+[
+  {
+    "file": "cond-args.bril",
+    "directory": "df",
+    "result": "@main(cond: bool) {\n  br cond .left .right;\n.left:\n  jmp .end;\n.right:\n  a: int = const 2;\n  c: int = const 10;\n  jmp .end;\n.end:\n  lvn.0: int = sub a c;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "cond.bril",
+    "directory": "df",
+    "result": "@main {\n  cond: bool = const true;\n  br cond .left .right;\n.left:\n  jmp .end;\n.right:\n  a: int = const 2;\n  c: int = const 10;\n  jmp .end;\n.end:\n  lvn.0: int = sub a c;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "fact.bril",
+    "directory": "df",
+    "result": "@main {\n  result: int = const 1;\n  i: int = const 8;\n.header:\n  zero: int = const 0;\n  lvn.0: bool = gt i zero;\n  br lvn.0 .body .end;\n.body:\n  lvn.1: int = mul i result;\n  jmp .header;\n.end:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "loopcond.bril",
+    "directory": "dom",
+    "result": "@main {\n.entry:\n  x: int = const 0;\n  one: int = const 1;\n.loop:\n  max: int = const 10;\n  lvn.0: bool = lt x max;\n  br lvn.0 .body .exit;\n.body:\n  mid: int = const 5;\n  lvn.1: bool = lt x mid;\n  br lvn.1 .then .endif;\n.then:\n  lvn.2: int = add one x;\n  jmp .endif;\n.endif:\n  factor: int = const 2;\n  lvn.3: int = mul factor lvn.2;\n  jmp .loop;\n.exit:\n  print lvn.3;\n}"
+  },
+  {
+    "file": "while.bril",
+    "directory": "dom",
+    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  lvn.0: bool = eq a zero;\n  br lvn.0 .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  lvn.1: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "clobber-arg.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 1;\n  b: int = const 2;\n.lbl:\n}"
+  },
+  {
+    "file": "clobber-fold.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  lvn.1: int = mul lvn.0 lvn.0;\n  print lvn.1;\n}"
+  },
+  {
+    "file": "clobber.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  lvn.1: int = mul lvn.0 lvn.0;\n  print lvn.1;\n}"
+  },
+  {
+    "file": "commute.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  lvn.1: int = mul lvn.0 lvn.0;\n  print lvn.1;\n}"
+  },
+  {
+    "file": "divide-by-zero.bril",
+    "directory": "lvn",
+    "result": "@main {\n.entry:\n  zero: int = const 0;\n  one: int = const 1;\n  lvn.0: int = div one zero;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "fold-comparisons.bril",
+    "directory": "lvn",
+    "result": "@main(arg1: int, arg2: int) {\n  a: int = const 4;\n  b: int = const 3;\n}"
+  },
+  {
+    "file": "idchain-nonlocal.bril",
+    "directory": "lvn",
+    "result": "@main {\n  x: int = const 4;\n  jmp .label;\n.label:\n  lvn.0: int = id x;\n  lvn.1: int = id lvn.0;\n  lvn.2: int = id lvn.1;\n  print lvn.2;\n}"
+  },
+  {
+    "file": "idchain-prop.bril",
+    "directory": "lvn",
+    "result": "@main {\n  x: int = const 4;\n  lvn.0: int = id x;\n  lvn.1: int = id lvn.0;\n  lvn.2: int = id lvn.1;\n  print lvn.2;\n}"
+  },
+  {
+    "file": "idchain.bril",
+    "directory": "lvn",
+    "result": "@main {\n  x: int = const 4;\n  lvn.0: int = id x;\n  lvn.1: int = id lvn.0;\n  lvn.2: int = id lvn.1;\n  print lvn.2;\n}"
+  },
+  {
+    "file": "logical-operators.bril",
+    "directory": "lvn",
+    "result": "@main(arg1: bool, arg2: bool) {\n  t: bool = const true;\n  f: bool = const false;\n}"
+  },
+  {
+    "file": "nonlocal-clobber.bril",
+    "directory": "lvn",
+    "result": "@main {\n  x: int = const 1;\n.lb:\n  lvn.0: int = id x;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "nonlocal.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  jmp .label;\n.label:\n  lvn.1: int = mul lvn.0 lvn.0;\n  print lvn.1;\n}"
+  },
+  {
+    "file": "reassign.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 42;\n  print a;\n}"
+  },
+  {
+    "file": "redundant-dce.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  lvn.1: int = mul lvn.0 lvn.0;\n  print lvn.1;\n}"
+  },
+  {
+    "file": "redundant.bril",
+    "directory": "lvn",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  lvn.1: int = mul lvn.0 lvn.0;\n  print lvn.1;\n}"
+  },
+  {
+    "file": "rename-fold.bril",
+    "directory": "lvn",
+    "result": "@main {\n  v1: int = const 4;\n  lvn.0: int = mul v1 v2;\n  lvn.1: int = add v1 v2;\n  v2: int = const 3;\n  print lvn.0;\n  print lvn.1;\n}"
+  },
+  {
+    "file": "if-orig.bril",
+    "directory": "ssa",
+    "result": "@main(cond: bool) {\n.entry:\n  a: int = const 47;\n  br cond .left .right;\n.left:\n  lvn.0: int = add a a;\n  jmp .exit;\n.right:\n  lvn.1: int = mul lvn.0 lvn.0;\n  jmp .exit;\n.exit:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "if-ssa.bril",
+    "directory": "ssa",
+    "result": "@main(cond: bool) {\n.entry:\n  a.1: int = const 47;\n  br cond .left .right;\n.left:\n  lvn.0: int = add a.1 a.1;\n  jmp .exit;\n.right:\n  lvn.1: int = mul a.1 a.1;\n  jmp .exit;\n.exit:\n  lvn.2: int = phi lvn.0 lvn.1 .left .right;\n  print lvn.2;\n}"
+  },
+  {
+    "file": "loop-orig.bril",
+    "directory": "ssa",
+    "result": "@main {\n.entry:\n  i: int = const 1;\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  lvn.0: bool = lt i max;\n  br lvn.0 .body .exit;\n.body:\n  lvn.1: int = add i i;\n  jmp .loop;\n.exit:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "loop-ssa.bril",
+    "directory": "ssa",
+    "result": "@main {\n.entry:\n  i.1: int = const 1;\n  jmp .loop;\n.loop:\n  lvn.0: int = phi i.1 i.3 .entry .body;\n  max: int = const 10;\n  lvn.1: bool = lt lvn.0 max;\n  br lvn.1 .body .exit;\n.body:\n  jmp .loop;\n.exit:\n  print lvn.0;\n}"
+  },
+  {
+    "file": "argwrite.bril",
+    "directory": "ssa_roundtrip",
+    "result": "@main(a: int) {\n  cond: bool = const true;\n  br cond .here .there;\n.here:\n  a: int = const 5;\n.there:\n  print a;\n}"
+  },
+  {
+    "file": "if-const.bril",
+    "directory": "ssa_roundtrip",
+    "result": "@main {\n  cond: bool = const true;\n  br cond .true .false;\n.true:\n  a: int = const 0;\n  jmp .zexit;\n.false:\n  jmp .zexit;\n.zexit:\n  print a;\n}"
+  },
+  {
+    "file": "if.bril",
+    "directory": "ssa_roundtrip",
+    "result": "@main(cond: bool) {\n.entry:\n  a: int = const 47;\n  br cond .left .right;\n.left:\n  lvn.0: int = add a a;\n  jmp .exit;\n.right:\n  lvn.1: int = mul lvn.0 lvn.0;\n  jmp .exit;\n.exit:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "loop.bril",
+    "directory": "ssa_roundtrip",
+    "result": "@main {\n.entry:\n  i: int = const 1;\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  lvn.0: bool = lt i max;\n  br lvn.0 .body .exit;\n.body:\n  lvn.1: int = add i i;\n  jmp .loop;\n.exit:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "selfloop.bril",
+    "directory": "ssa_roundtrip",
+    "result": "@main {\n.entry:\n  one: int = const 1;\n  zero: int = const 0;\n  x: int = const 5;\n.loop:\n  lvn.0: int = sub x one;\n  lvn.1: bool = eq lvn.0 zero;\n.br:\n  br lvn.1 .exit .loop;\n.exit:\n  print lvn.0;\n  ret;\n}"
+  },
+  {
+    "file": "while.bril",
+    "directory": "ssa_roundtrip",
+    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  lvn.0: bool = eq a zero;\n  br lvn.0 .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  lvn.1: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "combo.bril",
+    "directory": "tdce",
+    "result": "@main {\n  a: int = const 1;\n  lvn.0: int = add a b;\n  b: int = const 3;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "diamond.bril",
+    "directory": "tdce",
+    "result": "@main {\n  cond: bool = const true;\n  br cond .left .right;\n.left:\n  jmp .end;\n.right:\n  a: int = const 2;\n  jmp .end;\n.end:\n  print a;\n}"
+  },
+  {
+    "file": "double-pass.bril",
+    "directory": "tdce",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "double.bril",
+    "directory": "tdce",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "reassign-dkp.bril",
+    "directory": "tdce",
+    "result": "@main {\n  a: int = const 42;\n  print a;\n}"
+  },
+  {
+    "file": "reassign.bril",
+    "directory": "tdce",
+    "result": "@main {\n  a: int = const 42;\n  print a;\n}"
+  },
+  {
+    "file": "simple.bril",
+    "directory": "tdce",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  lvn.0: int = add a b;\n  print lvn.0;\n}"
+  },
+  {
+    "file": "skipped.bril",
+    "directory": "tdce",
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  jmp .end;\n  print b;\n.end:\n  print a;\n}"
+  },
+  {
+    "file": "argwrite.bril",
+    "directory": "to_ssa",
+    "result": "@main(a: int) {\n  cond: bool = const true;\n  br cond .here .there;\n.here:\n  a: int = const 5;\n.there:\n  print a;\n}"
+  },
+  {
+    "file": "if-const.bril",
+    "directory": "to_ssa",
+    "result": "@main {\n  cond: bool = const true;\n  br cond .true .false;\n.true:\n  a: int = const 0;\n  jmp .zexit;\n.false:\n  jmp .zexit;\n.zexit:\n  print a;\n}"
+  },
+  {
+    "file": "if-ssa.bril",
+    "directory": "to_ssa",
+    "result": "@main(cond: bool) {\n.entry:\n  a.1: int = const 47;\n  br cond .left .right;\n.left:\n  lvn.0: int = add a.1 a.1;\n  jmp .zexit;\n.right:\n  lvn.1: int = mul a.1 a.1;\n  jmp .zexit;\n.zexit:\n  lvn.2: int = phi lvn.0 lvn.1 .left .right;\n  print lvn.2;\n}"
+  },
+  {
+    "file": "if.bril",
+    "directory": "to_ssa",
+    "result": "@main(cond: bool) {\n.entry:\n  a: int = const 47;\n  br cond .left .right;\n.left:\n  lvn.0: int = add a a;\n  jmp .exit;\n.right:\n  lvn.1: int = mul lvn.0 lvn.0;\n  jmp .exit;\n.exit:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "loop-branch.bril",
+    "directory": "to_ssa",
+    "result": "@func: int {\n  n: int = const 5;\n  ret n;\n}\n@loop(infinite: bool, print: bool) {\n.entry:\n.loop.header:\n  br infinite .loop.body .loop.end;\n.loop.body:\n  br print .loop.print .loop.next;\n.loop.print:\n  lvn.0: int = call @func;\n  print lvn.0;\n.loop.next:\n  jmp .loop.header;\n.loop.end:\n}\n@main {\n  infinite: bool = const false;\n  print: bool = const true;\n  call @loop infinite print;\n}"
+  },
+  {
+    "file": "loop.bril",
+    "directory": "to_ssa",
+    "result": "@main {\n.entry:\n  i: int = const 1;\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  lvn.0: bool = lt i max;\n  br lvn.0 .body .exit;\n.body:\n  lvn.1: int = add i i;\n  jmp .loop;\n.exit:\n  print lvn.1;\n}"
+  },
+  {
+    "file": "selfloop.bril",
+    "directory": "to_ssa",
+    "result": "@main {\n.entry:\n  one: int = const 1;\n  zero: int = const 0;\n  x: int = const 5;\n.loop:\n  lvn.0: int = sub x one;\n  lvn.1: bool = eq lvn.0 zero;\n.br:\n  br lvn.1 .exit .loop;\n.exit:\n  print lvn.0;\n  ret;\n}"
+  },
+  {
+    "file": "while.bril",
+    "directory": "to_ssa",
+    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  lvn.0: bool = eq a zero;\n  br lvn.0 .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  lvn.1: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print lvn.1;\n}"
+  }
+]
