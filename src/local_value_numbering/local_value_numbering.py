@@ -1,118 +1,93 @@
 import json
 import sys
 
-def canonicalize(op, args):
-    if op in ["add", "mul", "eq"]:
-        return tuple(sorted(args))
-    return tuple(args)
+def local_value_numbering(instructions):
+    value_to_number = {}
+    number_to_value = {}
+    variable_to_number = {}
+    number_to_variable = {}
+    counter = 0
 
-def lvn(block):
-    val2var = {}
-    var_replacement = {}
-    next_lvn = 0
-    new_instrs = []
+    for instruction in instructions:
+        if "dest" not in instruction:
+            continue
+        if not isinstance(instruction["type"], str):
+            continue
 
-    for instr in block:
-        if "args" in instr:
-            new_args = [var_replacement.get(arg, arg) for arg in instr["args"]]
+        # Handle non-arithmetic or logic operations
+        if instruction["op"] not in ["add", "mul", "sub", "div", "eq", "lt", "gt", "le", "ge", "not", "and", "or", "id"]:
+            counter += 1
+            number = counter
+            number_to_value[number] = None
         else:
-            new_args = []
-
-        if "dest" in instr:
-            op = instr["op"]
-            if op == "const":
-                value = ("const", instr["value"])
-                # If the destination has been reassigned, it clobbers its previous value
-                var_replacement.pop(instr["dest"], None)
-                val2var = {k: v for k, v in val2var.items() if v != instr["dest"]}  # Remove clobbered values
-                if value in val2var:
-                    existing_var = val2var[value]
-                    var_replacement[instr["dest"]] = existing_var
-                    continue
-                else:
-                    val2var[value] = instr["dest"]
-                    var_replacement[instr["dest"]] = instr["dest"]
-                    new_instrs.append(instr)
-            elif op in ["add", "mul"]:
-                canonical_args = canonicalize(op, new_args)
-                value = (op,) + canonical_args
-                # If the destination has been reassigned, it clobbers its previous value
-                var_replacement.pop(instr["dest"], None)
-                val2var = {k: v for k, v in val2var.items() if v != instr["dest"]}  # Remove clobbered values
-                if value in val2var:
-                    existing_var = val2var[value]
-                    var_replacement[instr["dest"]] = existing_var
-                    continue
-                else:
-                    val2var[value] = instr["dest"]
-                    var_replacement[instr["dest"]] = instr["dest"]
-                    new_instrs.append(instr)
+            # Collect argument values and perform value numbering
+            arguments = []
+            if "args" in instruction:
+                for idx, argument in enumerate(instruction["args"]):
+                    argument_number = variable_to_number.get(argument)
+                    if argument_number is None:
+                        arguments.append(argument)
+                    else:
+                        if number_to_variable[argument_number][0] != argument:
+                            instruction["args"][idx] = number_to_variable[argument_number][0]
+                        arguments.append(f"#.{argument_number}")
+            if instruction["op"] in ["add", "mul"]:
+                arguments.sort()
+            if instruction["op"] == "const":
+                value_repr = f"const {instruction['value']}"
             else:
-                # For other operations, just insert the instruction and handle as usual
-                var_replacement.pop(instr["dest"], None)
-                val2var = {k: v for k, v in val2var.items() if v != instr["dest"]}  # Remove clobbered values
-                new_instr = dict(instr)
-                new_instr["args"] = new_args
-                new_instrs.append(new_instr)
-                var_replacement[instr["dest"]] = instr["dest"]
+                value_repr = f"{instruction['op']}{instruction['type']}{arguments}"
+
+            if instruction["op"] == "id":
+                number = variable_to_number.get(instruction["args"][0])
+            else:
+                number = value_to_number.get(value_repr)
+
+            if number is None:
+                counter += 1
+                number = counter
+                value_to_number[value_repr] = number
+                number_to_value[number] = value_repr
+            else:
+                instruction["op"] = "id"
+                instruction["args"] = [number_to_variable[number][0]]
+                instruction.pop("funcs", None)
+
+        # Remove the old number for the destination variable if it exists
+        if instruction["dest"] in variable_to_number:
+            old_number = variable_to_number[instruction["dest"]]
+            number_to_variable[old_number].remove(instruction["dest"])
+            if len(number_to_variable[old_number]) == 0:
+                old_value = number_to_value.get(old_number)
+                if old_value is not None:
+                    value_to_number.pop(old_value)
+                number_to_value.pop(old_number)
+
+        # Update mappings for the current destination
+        variable_to_number[instruction["dest"]] = number
+        if number not in number_to_variable:
+            number_to_variable[number] = [instruction["dest"]]
         else:
-            # Handle non-destination instructions
-            new_instr = dict(instr)
-            if "args" in new_instr:
-                new_instr["args"] = [var_replacement.get(arg, arg) for arg in new_instr["args"]]
-            new_instrs.append(new_instr)
+            number_to_variable[number].append(instruction["dest"])
 
-    return new_instrs
-
-def split_blocks(instrs):
-    blocks = []
-    current_block = []
-    for instr in instrs:
-        current_block.append(instr)
-        if instr["op"] in ["jmp", "br"]:
-            blocks.append(current_block)
-            current_block = []
-    if current_block:
-        blocks.append(current_block)
-    return blocks
-
-def join_blocks(blocks):
-    instrs = []
-    for block in blocks:
-        instrs.extend(block)
-    return instrs
-
-def get_used_variables(prog):
-    used_vars = set()
-    for fn in prog["functions"]:
-        for instr in fn["instrs"]:
-            if "args" in instr:
-                used_vars.update(instr["args"])
-    return used_vars
-
-def dce(prog):
-    for fn in prog["functions"]:
-        used_vars = set()
-        new_instrs = []
-        for instr in reversed(fn["instrs"]):
-            if "op" not in instr or instr["op"] in ["print", "ret", "jmp", "br"]:
-                new_instrs.insert(0, instr)
-                if "args" in instr:
-                    used_vars.update(instr["args"])
-            elif "dest" in instr:
-                if instr["dest"] in used_vars:
-                    new_instrs.insert(0, instr)
-                    if "args" in instr:
-                        used_vars.update(instr["args"])
-                    used_vars.discard(instr["dest"])
-        fn["instrs"] = new_instrs
-    return prog
+    return instructions
 
 if __name__ == "__main__":
-    prog = json.load(sys.stdin)
-    for fn in prog.get("functions", []):
-        blocks = split_blocks(fn["instrs"])
-        new_blocks = [lvn(block) for block in blocks]
-        fn["instrs"] = join_blocks(new_blocks)
-    prog = dce(prog)
-    json.dump(prog, sys.stdout, indent=2)
+    program = json.load(sys.stdin)
+    for function in program["functions"]:
+        optimized_instructions = []
+        current_block = []
+        for instruction in function["instrs"]:
+            if "op" in instruction:
+                current_block.append(instruction)
+                if instruction["op"] in ["br", "jmp", "ret"]:
+                    optimized_instructions += local_value_numbering(current_block)
+                    current_block = []
+            else:
+                optimized_instructions += local_value_numbering(current_block)
+                current_block = []
+                optimized_instructions.append(instruction)
+        optimized_instructions += local_value_numbering(current_block)
+        function["instrs"] = optimized_instructions
+
+    json.dump(program, sys.stdout, indent=2)
