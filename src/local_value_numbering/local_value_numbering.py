@@ -22,6 +22,23 @@ def lvn(block):
             op = instr["op"]
             if op == "const":
                 value = ("const", instr["value"])
+                # If the destination has been reassigned, it clobbers its previous value
+                var_replacement.pop(instr["dest"], None)
+                val2var = {k: v for k, v in val2var.items() if v != instr["dest"]}  # Remove clobbered values
+                if value in val2var:
+                    existing_var = val2var[value]
+                    var_replacement[instr["dest"]] = existing_var
+                    continue
+                else:
+                    val2var[value] = instr["dest"]
+                    var_replacement[instr["dest"]] = instr["dest"]
+                    new_instrs.append(instr)
+            elif op in ["add", "mul"]:
+                canonical_args = canonicalize(op, new_args)
+                value = (op,) + canonical_args
+                # If the destination has been reassigned, it clobbers its previous value
+                var_replacement.pop(instr["dest"], None)
+                val2var = {k: v for k, v in val2var.items() if v != instr["dest"]}  # Remove clobbered values
                 if value in val2var:
                     existing_var = val2var[value]
                     var_replacement[instr["dest"]] = existing_var
@@ -31,43 +48,15 @@ def lvn(block):
                     var_replacement[instr["dest"]] = instr["dest"]
                     new_instrs.append(instr)
             else:
-                canonical_args = canonicalize(op, new_args)
-                value = (op,) + canonical_args
-                if value in val2var:
-                    existing_var = val2var[value]
-                    var_replacement[instr["dest"]] = existing_var
-                    continue
-                else:
-                    if all(arg.startswith("const") or arg.isdigit() for arg in new_args):
-                        if op == "add":
-                            result = sum(int(arg) for arg in new_args)
-                        elif op == "mul":
-                            result = 1
-                            for arg in new_args:
-                                result *= int(arg)
-                        elif op == "eq":
-                            result = int(new_args[0] == new_args[1])
-                        else:
-                            continue
-                        new_instr = {
-                            "op": "const",
-                            "dest": instr["dest"],
-                            "type": instr["type"],
-                            "value": result
-                        }
-                        val2var[value] = instr["dest"]
-                        var_replacement[instr["dest"]] = instr["dest"]
-                        new_instrs.append(new_instr)
-                    else:
-                        lvn_var = f"lvn.{next_lvn}"
-                        next_lvn += 1
-                        val2var[value] = lvn_var
-                        var_replacement[instr["dest"]] = lvn_var
-                        new_instr = dict(instr)
-                        new_instr["dest"] = lvn_var
-                        new_instr["args"] = list(canonical_args)
-                        new_instrs.append(new_instr)
+                # For other operations, just insert the instruction and handle as usual
+                var_replacement.pop(instr["dest"], None)
+                val2var = {k: v for k, v in val2var.items() if v != instr["dest"]}  # Remove clobbered values
+                new_instr = dict(instr)
+                new_instr["args"] = new_args
+                new_instrs.append(new_instr)
+                var_replacement[instr["dest"]] = instr["dest"]
         else:
+            # Handle non-destination instructions
             new_instr = dict(instr)
             if "args" in new_instr:
                 new_instr["args"] = [var_replacement.get(arg, arg) for arg in new_instr["args"]]
