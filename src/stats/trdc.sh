@@ -9,23 +9,50 @@ OUTPUT_FILE="results_trdc.json"
 # Clear or create the output file with an empty JSON array
 echo "[]" > "$OUTPUT_FILE"
 
+# Function to get current time in nanoseconds using python3
+get_time_ns() {
+    python3 -c 'import time; print(int(time.time() * 1e9))'
+}
+
 # Function to process a single .bril file and append results to a JSON array
 process_file() {
     local file="$1"
     local dir_name="$2"
     local file_name=$(basename "$file" .bril)
-    
+
     echo "Processing file: $file_name.bril in directory: $dir_name"
 
-    # Process the file and capture the output
-    local result=$(cat "$file" | bril2json | python3 ../remove_dead_code/remove_dead_code.py | bril2txt 2>&1)
+    # Initialize an empty array to store timing results
+    timings=()
 
-    # Create a JSON entry for the file
+    # Loop to execute the processing 1000 times
+    for i in {1..10}; do
+        # Record the start time in nanoseconds
+        start=$(get_time_ns)
+
+        # Process the file and capture the output
+        result=$(cat "$file" | bril2json | python3 ../remove_dead_code/remove_dead_code.py | bril2txt 2>&1)
+
+        # Record the end time in nanoseconds
+        end=$(get_time_ns)
+
+        # Calculate the duration in nanoseconds
+        duration=$((end - start))
+
+        # Append the duration to the timings array
+        timings+=("$duration")
+    done
+
+    # Convert the timings array to a JSON array
+    timings_json=$(printf '%s\n' "${timings[@]}" | jq -R . | jq -s .)
+
+    # Create a JSON entry for the file with timing data
     local json_entry=$(jq -n \
         --arg file "$file_name.bril" \
         --arg dir "$dir_name" \
         --arg result "$result" \
-        '{file: $file, directory: $dir, result: $result}')
+        --argjson timings "$timings_json" \
+        '{file: $file, directory: $dir, result: $result, timings: $timings}')
 
     # Append the JSON entry to the output file
     jq --argjson new_entry "$json_entry" \

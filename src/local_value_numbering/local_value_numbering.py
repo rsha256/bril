@@ -6,18 +6,18 @@ def canonicalize(op, args):
         return tuple(sorted(args))
     return tuple(args)
 
-val2var = {}
-var_replacement = {}
-next_lvn = 0
-
 def lvn(block):
-    global val2var, var_replacement, next_lvn
+    val2var = {}
+    var_replacement = {}
+    next_lvn = 0
     new_instrs = []
+
     for instr in block:
         if "args" in instr:
             new_args = [var_replacement.get(arg, arg) for arg in instr["args"]]
         else:
             new_args = []
+
         if "dest" in instr:
             op = instr["op"]
             if op == "const":
@@ -72,7 +72,26 @@ def lvn(block):
             if "args" in new_instr:
                 new_instr["args"] = [var_replacement.get(arg, arg) for arg in new_instr["args"]]
             new_instrs.append(new_instr)
+
     return new_instrs
+
+def split_blocks(instrs):
+    blocks = []
+    current_block = []
+    for instr in instrs:
+        current_block.append(instr)
+        if instr["op"] in ["jmp", "br"]:
+            blocks.append(current_block)
+            current_block = []
+    if current_block:
+        blocks.append(current_block)
+    return blocks
+
+def join_blocks(blocks):
+    instrs = []
+    for block in blocks:
+        instrs.extend(block)
+    return instrs
 
 def get_used_variables(prog):
     used_vars = set()
@@ -103,6 +122,8 @@ def dce(prog):
 if __name__ == "__main__":
     prog = json.load(sys.stdin)
     for fn in prog.get("functions", []):
-        fn["instrs"] = lvn(fn["instrs"])
+        blocks = split_blocks(fn["instrs"])
+        new_blocks = [lvn(block) for block in blocks]
+        fn["instrs"] = join_blocks(new_blocks)
     prog = dce(prog)
     json.dump(prog, sys.stdout, indent=2)

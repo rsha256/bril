@@ -2,236 +2,800 @@
   {
     "file": "cond-args.bril",
     "directory": "df",
-    "result": "@main(cond: bool) {\n  br cond .left .right;\n.left:\n  jmp .end;\n.right:\n  a: int = const 2;\n  c: int = const 10;\n  jmp .end;\n.end:\n  d: int = sub a c;\n  print d;\n}"
+    "result": "@main(cond: bool) {\n  a: int = const 47;\n  b: int = const 42;\n  br cond .left .right;\n.left:\n  b: int = const 1;\n  c: int = const 5;\n  jmp .end;\n.right:\n  a: int = const 2;\n  c: int = const 10;\n  jmp .end;\n.end:\n  d: int = sub a c;\n  print d;\n}",
+    "timings": [
+      "111983872",
+      "107171840",
+      "106326016",
+      "106234880",
+      "117405952",
+      "113126912",
+      "155305984",
+      "142099968",
+      "114266112",
+      "108737024"
+    ]
   },
   {
     "file": "cond.bril",
     "directory": "df",
-    "result": "@main {\n  cond: bool = const true;\n  br cond .left .right;\n.left:\n  jmp .end;\n.right:\n  a: int = const 2;\n  c: int = const 10;\n  jmp .end;\n.end:\n  d: int = sub a c;\n  print d;\n}"
+    "result": "@main {\n  a: int = const 47;\n  b: int = const 42;\n  cond: bool = const true;\n  br cond .left .right;\n.left:\n  b: int = const 1;\n  c: int = const 5;\n  jmp .end;\n.right:\n  a: int = const 2;\n  c: int = const 10;\n  jmp .end;\n.end:\n  d: int = sub a c;\n  print d;\n}",
+    "timings": [
+      "117001216",
+      "112922880",
+      "114854144",
+      "112893952",
+      "113753856",
+      "111082752",
+      "112167936",
+      "112278016",
+      "109921024",
+      "110157056"
+    ]
   },
   {
     "file": "fact.bril",
     "directory": "df",
-    "result": "@main {\n.header:\n  zero: int = const 0;\n  cond: bool = gt i zero;\n  br cond .body .end;\n.body:\n  result: int = mul result i;\n  one: int = const 1;\n  i: int = sub i one;\n  jmp .header;\n.end:\n  print result;\n}"
+    "result": "@main {\n  result: int = const 1;\n  i: int = const 8;\n.header:\n  zero: int = const 0;\n  cond: bool = gt i zero;\n  br cond .body .end;\n.body:\n  result: int = mul result i;\n  one: int = const 1;\n  i: int = sub i one;\n  jmp .header;\n.end:\n  print result;\n}",
+    "timings": [
+      "114193152",
+      "108733952",
+      "110552064",
+      "111350016",
+      "113665792",
+      "108550144",
+      "105467136",
+      "105740032",
+      "110066944",
+      "106789888"
+    ]
   },
   {
     "file": "loopcond.bril",
     "directory": "dom",
-    "result": "@main {\n.entry:\n  one: int = const 1;\n.loop:\n  max: int = const 10;\n  br cond .body .exit;\n.body:\n  mid: int = const 5;\n  cond: bool = lt i mid;\n  br cond .then .endif;\n.then:\n  jmp .endif;\n.endif:\n  factor: int = const 2;\n  x: int = mul x factor;\n  i: int = add i one;\n  jmp .loop;\n.exit:\n  print x;\n}"
+    "result": "@main {\n.entry:\n  x: int = const 0;\n  i: int = const 0;\n  one: int = const 1;\n.loop:\n  max: int = const 10;\n  cond: bool = lt i max;\n  br cond .body .exit;\n.body:\n  mid: int = const 5;\n  cond: bool = lt i mid;\n  br cond .then .endif;\n.then:\n  x: int = add x one;\n  jmp .endif;\n.endif:\n  factor: int = const 2;\n  x: int = mul x factor;\n  i: int = add i one;\n  jmp .loop;\n.exit:\n  print x;\n}",
+    "timings": [
+      "112920064",
+      "109803008",
+      "110540032",
+      "112099072",
+      "111912960",
+      "109776128",
+      "112477952",
+      "110481920",
+      "111042048",
+      "109383936"
+    ]
   },
   {
     "file": "while.bril",
     "directory": "dom",
-    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  is_term: bool = eq a zero;\n  br is_term .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  a: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print a;\n}"
+    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  is_term: bool = eq a zero;\n  br is_term .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  a: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print a;\n}",
+    "timings": [
+      "109410816",
+      "105584128",
+      "106031104",
+      "105216768",
+      "104995072",
+      "103983872",
+      "109297152",
+      "105159936",
+      "104144128",
+      "103555072"
+    ]
   },
   {
     "file": "clobber-arg.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 1;\n.lbl:\n  b: int = add a b;\n}"
+    "result": "@main {\n  a: int = const 1;\n  b: int = const 2;\n.lbl:\n  b: int = add a b;\n}",
+    "timings": [
+      "113902080",
+      "113970944",
+      "113410048",
+      "112048896",
+      "113357056",
+      "110736896",
+      "111243008",
+      "112941056",
+      "160097792",
+      "117238016"
+    ]
   },
   {
     "file": "clobber-fold.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = const 0;\n  sum2: int = const 0;\n  sum3: int = add a b;\n  prod2: int = mul sum3 sum3;\n  print prod2;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  prod1: int = mul sum1 sum2;\n  sum1: int = const 0;\n  sum2: int = const 0;\n  sum3: int = add a b;\n  prod2: int = mul sum3 sum3;\n  print prod2;\n}",
+    "timings": [
+      "115571968",
+      "115572992",
+      "111814912",
+      "109888000",
+      "112178944",
+      "133904896",
+      "126784000",
+      "118123008",
+      "118646016",
+      "124048896"
+    ]
   },
   {
     "file": "clobber.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = const 0;\n  sum2: int = const 0;\n  sum3: int = add a b;\n  prod2: int = mul sum3 sum3;\n  print prod2;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  prod1: int = mul sum1 sum2;\n  sum1: int = const 0;\n  sum2: int = const 0;\n  sum3: int = add a b;\n  prod2: int = mul sum3 sum3;\n  print prod2;\n}",
+    "timings": [
+      "117741824",
+      "117806080",
+      "120328960",
+      "118493952",
+      "120619008",
+      "116368896",
+      "115876864",
+      "117957888",
+      "111132160",
+      "112974848"
+    ]
   },
   {
     "file": "commute.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add b a;\n  prod: int = mul sum1 sum2;\n  print prod;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add b a;\n  prod: int = mul sum1 sum2;\n  print prod;\n}",
+    "timings": [
+      "111110912",
+      "108246016",
+      "108664064",
+      "114656000",
+      "109613056",
+      "108718080",
+      "112800000",
+      "112358912",
+      "108196864",
+      "107756032"
+    ]
   },
   {
     "file": "divide-by-zero.bril",
     "directory": "lvn",
-    "result": "@main {\n.entry:\n  zero: int = const 0;\n  one: int = const 1;\n  baddiv: int = div one zero;\n  print baddiv;\n}"
+    "result": "@main {\n.entry:\n  zero: int = const 0;\n  one: int = const 1;\n  baddiv: int = div one zero;\n  print baddiv;\n}",
+    "timings": [
+      "109744896",
+      "114768896",
+      "114639104",
+      "114935808",
+      "113571072",
+      "111529984",
+      "108761856",
+      "106028032",
+      "102281984",
+      "102110976"
+    ]
   },
   {
     "file": "fold-comparisons.bril",
     "directory": "lvn",
-    "result": "@main(arg1: int, arg2: int) {\n  a: int = const 4;\n  b: int = const 3;\n}"
+    "result": "@main(arg1: int, arg2: int) {\n  a: int = const 4;\n  b: int = const 3;\n  constant_fold2: bool = eq a b;\n  constant_fold3: bool = le a b;\n  constant_fold4: bool = lt b a;\n  constant_fold5: bool = gt b a;\n  constant_fold6: bool = ge b a;\n  should_fold1: bool = eq arg1 arg1;\n  should_fold2: bool = le arg1 arg1;\n  should_fold3: bool = ge arg1 arg1;\n  no_fold1: bool = eq arg1 arg2;\n  no_fold2: bool = le arg1 arg2;\n  no_fold3: bool = ge arg1 arg2;\n  no_fold4: bool = lt arg1 arg1;\n  no_fold5: bool = gt arg2 arg2;\n}",
+    "timings": [
+      "113645824",
+      "110691840",
+      "109927168",
+      "111004928",
+      "113021184",
+      "109960960",
+      "108487168",
+      "109754112",
+      "109176064",
+      "109005056"
+    ]
   },
   {
     "file": "idchain-nonlocal.bril",
     "directory": "lvn",
-    "result": "@main {\n  x: int = const 4;\n  jmp .label;\n.label:\n  copy1: int = id x;\n  copy2: int = id copy1;\n  copy3: int = id copy2;\n  print copy3;\n}"
+    "result": "@main {\n  x: int = const 4;\n  jmp .label;\n.label:\n  copy1: int = id x;\n  copy2: int = id copy1;\n  copy3: int = id copy2;\n  print copy3;\n}",
+    "timings": [
+      "103260160",
+      "107387136",
+      "105964032",
+      "104623104",
+      "102863104",
+      "103170048",
+      "105569024",
+      "103982848",
+      "169021184",
+      "111513856"
+    ]
   },
   {
     "file": "idchain-prop.bril",
     "directory": "lvn",
-    "result": "@main {\n  x: int = const 4;\n  copy1: int = id x;\n  copy2: int = id copy1;\n  copy3: int = id copy2;\n  print copy3;\n}"
+    "result": "@main {\n  x: int = const 4;\n  copy1: int = id x;\n  copy2: int = id copy1;\n  copy3: int = id copy2;\n  print copy3;\n}",
+    "timings": [
+      "107272960",
+      "103021824",
+      "102806016",
+      "110366976",
+      "104536064",
+      "109961216",
+      "112080128",
+      "111692032",
+      "110105088",
+      "105164032"
+    ]
   },
   {
     "file": "idchain.bril",
     "directory": "lvn",
-    "result": "@main {\n  x: int = const 4;\n  copy1: int = id x;\n  copy2: int = id copy1;\n  copy3: int = id copy2;\n  print copy3;\n}"
+    "result": "@main {\n  x: int = const 4;\n  copy1: int = id x;\n  copy2: int = id copy1;\n  copy3: int = id copy2;\n  print copy3;\n}",
+    "timings": [
+      "106270976",
+      "106031104",
+      "106788864",
+      "108244992",
+      "102889984",
+      "102911232",
+      "110040832",
+      "111847936",
+      "112382976",
+      "113608960"
+    ]
   },
   {
     "file": "logical-operators.bril",
     "directory": "lvn",
-    "result": "@main(arg1: bool, arg2: bool) {\n  t: bool = const true;\n  f: bool = const false;\n}"
+    "result": "@main(arg1: bool, arg2: bool) {\n  t: bool = const true;\n  f: bool = const false;\n  constant_fold1: bool = and f t;\n  constant_fold2: bool = and t f;\n  constant_fold3: bool = or t f;\n  constant_fold4: bool = or f t;\n  constant_fold5: bool = not t;\n  constant_fold6: bool = not f;\n  should_fold1: bool = and f arg1;\n  should_fold2: bool = and arg1 f;\n  should_fold3: bool = or t arg1;\n  should_fold4: bool = or arg1 t;\n  no_fold1: bool = and t arg1;\n  no_fold2: bool = and arg1 t;\n  no_fold3: bool = or f arg1;\n  no_fold4: bool = or arg1 f;\n  no_fold5: bool = and arg1 arg2;\n  no_fold6: bool = or arg1 arg2;\n  no_fold7: bool = not arg1;\n}",
+    "timings": [
+      "123101952",
+      "125987840",
+      "123804928",
+      "124669952",
+      "203371008",
+      "121563136",
+      "121208064",
+      "120657152",
+      "126468096",
+      "122000128"
+    ]
   },
   {
     "file": "nonlocal-clobber.bril",
     "directory": "lvn",
-    "result": "@main {\n.lb:\n  y: int = id x;\n  x: int = add x x;\n  print y;\n}"
+    "result": "@main {\n  x: int = const 1;\n.lb:\n  y: int = id x;\n  x: int = add x x;\n  print y;\n}",
+    "timings": [
+      "109459968",
+      "111247104",
+      "104983040",
+      "119120896",
+      "113847040",
+      "112879872",
+      "113267968",
+      "115174912",
+      "114148096",
+      "111452928"
+    ]
   },
   {
     "file": "nonlocal.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  jmp .label;\n.label:\n  prod: int = mul sum1 sum2;\n  print prod;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  jmp .label;\n.label:\n  prod: int = mul sum1 sum2;\n  print prod;\n}",
+    "timings": [
+      "114187008",
+      "109425152",
+      "109459968",
+      "111237120",
+      "178652160",
+      "111814912",
+      "105998848",
+      "111112960",
+      "106870016",
+      "104197120"
+    ]
   },
   {
     "file": "reassign.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 42;\n  print a;\n}"
+    "result": "@main {\n  a: int = const 100;\n  a: int = const 42;\n  print a;\n}",
+    "timings": [
+      "101411072",
+      "107330816",
+      "112284160",
+      "109350912",
+      "106446848",
+      "104692992",
+      "102280960",
+      "113932032",
+      "111259904",
+      "111759104"
+    ]
   },
   {
     "file": "redundant-dce.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  prod: int = mul sum1 sum2;\n  print prod;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  prod: int = mul sum1 sum2;\n  print prod;\n}",
+    "timings": [
+      "111809024",
+      "115610880",
+      "114318848",
+      "114398208",
+      "108167168",
+      "112814080",
+      "113787136",
+      "114097152",
+      "114599936",
+      "112970240"
+    ]
   },
   {
     "file": "redundant.bril",
     "directory": "lvn",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  prod: int = mul sum1 sum2;\n  print prod;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  sum1: int = add a b;\n  sum2: int = add a b;\n  prod: int = mul sum1 sum2;\n  print prod;\n}",
+    "timings": [
+      "107879168",
+      "108486912",
+      "108260096",
+      "104363008",
+      "112870144",
+      "113123840",
+      "112577024",
+      "113207040",
+      "114385152",
+      "115736832"
+    ]
   },
   {
     "file": "rename-fold.bril",
     "directory": "lvn",
-    "result": "@main {\n  v1: int = const 4;\n  mul1: int = mul v1 v2;\n  add1: int = add v1 v2;\n  v2: int = const 3;\n  print mul1;\n  print add1;\n}"
+    "result": "@main {\n  v1: int = const 4;\n  v2: int = const 0;\n  mul1: int = mul v1 v2;\n  add1: int = add v1 v2;\n  v2: int = const 3;\n  print mul1;\n  print add1;\n}",
+    "timings": [
+      "115121920",
+      "189166848",
+      "115235840",
+      "113044992",
+      "111433984",
+      "108510976",
+      "112136960",
+      "105772032",
+      "115077120",
+      "117137152"
+    ]
   },
   {
     "file": "if-orig.bril",
     "directory": "ssa",
-    "result": "@main(cond: bool) {\n.entry:\n  br cond .left .right;\n.left:\n  jmp .exit;\n.right:\n  a: int = mul a a;\n  jmp .exit;\n.exit:\n  print a;\n}"
+    "result": "@main(cond: bool) {\n.entry:\n  a: int = const 47;\n  br cond .left .right;\n.left:\n  a: int = add a a;\n  jmp .exit;\n.right:\n  a: int = mul a a;\n  jmp .exit;\n.exit:\n  print a;\n}",
+    "timings": [
+      "116812032",
+      "111215872",
+      "108237056",
+      "107738880",
+      "115443968",
+      "113844224",
+      "121475840",
+      "108609024",
+      "111513856",
+      "109195776"
+    ]
   },
   {
     "file": "if-ssa.bril",
     "directory": "ssa",
-    "result": "@main(cond: bool) {\n.entry:\n  a.1: int = const 47;\n  br cond .left .right;\n.left:\n  a.2: int = add a.1 a.1;\n  jmp .exit;\n.right:\n  a.3: int = mul a.1 a.1;\n  jmp .exit;\n.exit:\n  a.4: int = phi a.2 a.3 .left .right;\n  print a.4;\n}"
+    "result": "@main(cond: bool) {\n.entry:\n  a.1: int = const 47;\n  br cond .left .right;\n.left:\n  a.2: int = add a.1 a.1;\n  jmp .exit;\n.right:\n  a.3: int = mul a.1 a.1;\n  jmp .exit;\n.exit:\n  a.4: int = phi a.2 a.3 .left .right;\n  print a.4;\n}",
+    "timings": [
+      "113261056",
+      "111190016",
+      "110865920",
+      "110265088",
+      "110469120",
+      "110978048",
+      "110795008",
+      "115539200",
+      "112978944",
+      "111215104"
+    ]
   },
   {
     "file": "loop-orig.bril",
     "directory": "ssa",
-    "result": "@main {\n.entry:\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  cond: bool = lt i max;\n  br cond .body .exit;\n.body:\n  i: int = add i i;\n  jmp .loop;\n.exit:\n  print i;\n}"
+    "result": "@main {\n.entry:\n  i: int = const 1;\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  cond: bool = lt i max;\n  br cond .body .exit;\n.body:\n  i: int = add i i;\n  jmp .loop;\n.exit:\n  print i;\n}",
+    "timings": [
+      "112998144",
+      "107997952",
+      "105441792",
+      "103863808",
+      "114988032",
+      "116308992",
+      "111832064",
+      "110841088",
+      "113020928",
+      "115995136"
+    ]
   },
   {
     "file": "loop-ssa.bril",
     "directory": "ssa",
-    "result": "@main {\n.entry:\n  i.1: int = const 1;\n  jmp .loop;\n.loop:\n  i.2: int = phi i.1 i.3 .entry .body;\n  max: int = const 10;\n  cond: bool = lt i.2 max;\n  br cond .body .exit;\n.body:\n  i.3: int = add i.2 i.2;\n  jmp .loop;\n.exit:\n  print i.2;\n}"
+    "result": "@main {\n.entry:\n  i.1: int = const 1;\n  jmp .loop;\n.loop:\n  i.2: int = phi i.1 i.3 .entry .body;\n  max: int = const 10;\n  cond: bool = lt i.2 max;\n  br cond .body .exit;\n.body:\n  i.3: int = add i.2 i.2;\n  jmp .loop;\n.exit:\n  print i.2;\n}",
+    "timings": [
+      "114743808",
+      "111901184",
+      "114233088",
+      "112850944",
+      "111993088",
+      "111965952",
+      "111170048",
+      "112282880",
+      "112137984",
+      "112514048"
+    ]
   },
   {
     "file": "argwrite.bril",
     "directory": "ssa_roundtrip",
-    "result": "@main(a: int) {\n  cond: bool = const true;\n  br cond .here .there;\n.here:\n  a: int = const 5;\n.there:\n  print a;\n}"
+    "result": "@main(a: int) {\n  cond: bool = const true;\n  br cond .here .there;\n.here:\n  a: int = const 5;\n.there:\n  print a;\n}",
+    "timings": [
+      "112697088",
+      "105903104",
+      "103490816",
+      "102600192",
+      "114150144",
+      "112811008",
+      "111144960",
+      "111568896",
+      "111517952",
+      "109296896"
+    ]
   },
   {
     "file": "if-const.bril",
     "directory": "ssa_roundtrip",
-    "result": "@main {\n  cond: bool = const true;\n  br cond .true .false;\n.true:\n  a: int = const 0;\n  jmp .zexit;\n.false:\n  jmp .zexit;\n.zexit:\n  print a;\n}"
+    "result": "@main {\n  cond: bool = const true;\n  br cond .true .false;\n.true:\n  a: int = const 0;\n  jmp .zexit;\n.false:\n  b: int = const 1;\n  jmp .zexit;\n.zexit:\n  print a;\n}",
+    "timings": [
+      "114062848",
+      "107378944",
+      "107139072",
+      "104370176",
+      "181771008",
+      "112557056",
+      "111005952",
+      "110608128",
+      "110319872",
+      "164540928"
+    ]
   },
   {
     "file": "if.bril",
     "directory": "ssa_roundtrip",
-    "result": "@main(cond: bool) {\n.entry:\n  br cond .left .right;\n.left:\n  jmp .exit;\n.right:\n  a: int = mul a a;\n  jmp .exit;\n.exit:\n  print a;\n}"
+    "result": "@main(cond: bool) {\n.entry:\n  a: int = const 47;\n  br cond .left .right;\n.left:\n  a: int = add a a;\n  jmp .exit;\n.right:\n  a: int = mul a a;\n  jmp .exit;\n.exit:\n  print a;\n}",
+    "timings": [
+      "116513024",
+      "106439168",
+      "105106944",
+      "105426944",
+      "111960064",
+      "111417088",
+      "110319872",
+      "115128832",
+      "110829824",
+      "109097984"
+    ]
   },
   {
     "file": "loop.bril",
     "directory": "ssa_roundtrip",
-    "result": "@main {\n.entry:\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  cond: bool = lt i max;\n  br cond .body .exit;\n.body:\n  i: int = add i i;\n  jmp .loop;\n.exit:\n  print i;\n}"
+    "result": "@main {\n.entry:\n  i: int = const 1;\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  cond: bool = lt i max;\n  br cond .body .exit;\n.body:\n  i: int = add i i;\n  jmp .loop;\n.exit:\n  print i;\n}",
+    "timings": [
+      "115688192",
+      "106298112",
+      "105337088",
+      "105190912",
+      "113313792",
+      "112027904",
+      "111695872",
+      "112474880",
+      "111190784",
+      "112132096"
+    ]
   },
   {
     "file": "selfloop.bril",
     "directory": "ssa_roundtrip",
-    "result": "@main {\n.entry:\n  one: int = const 1;\n  zero: int = const 0;\n.loop:\n  x: int = sub x one;\n  done: bool = eq x zero;\n.br:\n  br done .exit .loop;\n.exit:\n  print x;\n  ret;\n}"
+    "result": "@main {\n.entry:\n  one: int = const 1;\n  zero: int = const 0;\n  x: int = const 5;\n.loop:\n  x: int = sub x one;\n  done: bool = eq x zero;\n.br:\n  br done .exit .loop;\n.exit:\n  print x;\n  ret;\n}",
+    "timings": [
+      "113477120",
+      "105227008",
+      "105548032",
+      "111206912",
+      "114078208",
+      "114372096",
+      "112510976",
+      "112287232",
+      "110439168",
+      "111269888"
+    ]
   },
   {
     "file": "while.bril",
     "directory": "ssa_roundtrip",
-    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  is_term: bool = eq a zero;\n  br is_term .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  a: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print a;\n}"
+    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  is_term: bool = eq a zero;\n  br is_term .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  a: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print a;\n}",
+    "timings": [
+      "112728064",
+      "106784000",
+      "104280832",
+      "103433984",
+      "112595200",
+      "110345984",
+      "110885888",
+      "111837952",
+      "110326016",
+      "110633984"
+    ]
   },
   {
     "file": "combo.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 1;\n  b: int = const 3;\n  d: int = add a b;\n  print d;\n}"
+    "result": "@main {\n  a: int = const 1;\n  b: int = const 2;\n  c: int = add a b;\n  b: int = const 3;\n  d: int = add a b;\n  print d;\n}",
+    "timings": [
+      "112987904",
+      "105353984",
+      "103517952",
+      "103588864",
+      "110585088",
+      "110358016",
+      "112684032",
+      "109618944",
+      "110909952",
+      "109457152"
+    ]
   },
   {
     "file": "diamond.bril",
     "directory": "tdce",
-    "result": "@main {\n  cond: bool = const true;\n  br cond .left .right;\n.left:\n  jmp .end;\n.right:\n  a: int = const 2;\n  jmp .end;\n.end:\n  print a;\n}"
+    "result": "@main {\n  a: int = const 47;\n  cond: bool = const true;\n  br cond .left .right;\n.left:\n  a: int = const 1;\n  jmp .end;\n.right:\n  a: int = const 2;\n  jmp .end;\n.end:\n  print a;\n}",
+    "timings": [
+      "116140032",
+      "108258048",
+      "105464832",
+      "103880960",
+      "112358144",
+      "109491968",
+      "111286784",
+      "110599168",
+      "110839040",
+      "128079872"
+    ]
   },
   {
     "file": "double-pass.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  d: int = add a b;\n  print d;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  d: int = add a b;\n  e: int = add c d;\n  print d;\n}",
+    "timings": [
+      "113145856",
+      "104812032",
+      "106413056",
+      "107774976",
+      "112813056",
+      "112396032",
+      "109387008",
+      "109809920",
+      "108982784",
+      "109494016"
+    ]
   },
   {
     "file": "double.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  d: int = add a b;\n  print d;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  d: int = add a b;\n  e: int = add c d;\n  print d;\n}",
+    "timings": [
+      "111815936",
+      "105423104",
+      "103478016",
+      "104609024",
+      "113296896",
+      "113484032",
+      "111025920",
+      "112783104",
+      "111809024",
+      "113436928"
+    ]
   },
   {
     "file": "reassign-dkp.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 42;\n  print a;\n}"
+    "result": "@main {\n  a: int = const 100;\n  a: int = const 42;\n  print a;\n}",
+    "timings": [
+      "113212928",
+      "103265024",
+      "101762048",
+      "106348032",
+      "110436864",
+      "111699968",
+      "108710144",
+      "108930816",
+      "107278848",
+      "108922112"
+    ]
   },
   {
     "file": "reassign.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 42;\n  print a;\n}"
+    "result": "@main {\n  a: int = const 100;\n  a: int = const 42;\n  print a;\n}",
+    "timings": [
+      "112708096",
+      "104733184",
+      "102739200",
+      "103124992",
+      "109314816",
+      "108762112",
+      "108749824",
+      "108141056",
+      "107004928",
+      "108090880"
+    ]
   },
   {
     "file": "simple.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  d: int = add a b;\n  print d;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  c: int = const 1;\n  d: int = add a b;\n  print d;\n}",
+    "timings": [
+      "113236992",
+      "104648960",
+      "108331776",
+      "106611200",
+      "112416000",
+      "109491200",
+      "109780992",
+      "109512960",
+      "109548032",
+      "109960960"
+    ]
   },
   {
     "file": "skipped.bril",
     "directory": "tdce",
-    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  jmp .end;\n  print b;\n.end:\n  print a;\n}"
+    "result": "@main {\n  a: int = const 4;\n  b: int = const 2;\n  jmp .end;\n  print b;\n.end:\n  print a;\n}",
+    "timings": [
+      "111744000",
+      "104593920",
+      "103488768",
+      "102158848",
+      "110294016",
+      "108823040",
+      "107606784",
+      "109127936",
+      "107683072",
+      "108509952"
+    ]
   },
   {
     "file": "argwrite.bril",
     "directory": "to_ssa",
-    "result": "@main(a: int) {\n  cond: bool = const true;\n  br cond .here .there;\n.here:\n  a: int = const 5;\n.there:\n  print a;\n}"
+    "result": "@main(a: int) {\n  cond: bool = const true;\n  br cond .here .there;\n.here:\n  a: int = const 5;\n.there:\n  print a;\n}",
+    "timings": [
+      "112167936",
+      "105050112",
+      "105929984",
+      "102977024",
+      "109408000",
+      "110230016",
+      "110948096",
+      "108704000",
+      "110942976",
+      "109412096"
+    ]
   },
   {
     "file": "if-const.bril",
     "directory": "to_ssa",
-    "result": "@main {\n  cond: bool = const true;\n  br cond .true .false;\n.true:\n  a: int = const 0;\n  jmp .zexit;\n.false:\n  jmp .zexit;\n.zexit:\n  print a;\n}"
+    "result": "@main {\n  cond: bool = const true;\n  br cond .true .false;\n.true:\n  a: int = const 0;\n  jmp .zexit;\n.false:\n  b: int = const 1;\n  jmp .zexit;\n.zexit:\n  print a;\n}",
+    "timings": [
+      "112672000",
+      "105986048",
+      "106920960",
+      "107596032",
+      "112599040",
+      "111435008",
+      "112773888",
+      "111311872",
+      "112528128",
+      "110352128"
+    ]
   },
   {
     "file": "if-ssa.bril",
     "directory": "to_ssa",
-    "result": "@main(cond: bool) {\n.entry:\n  a.1: int = const 47;\n  br cond .left .right;\n.left:\n  a.2: int = add a.1 a.1;\n  jmp .zexit;\n.right:\n  a.3: int = mul a.1 a.1;\n  jmp .zexit;\n.zexit:\n  a.4: int = phi a.2 a.3 .left .right;\n  print a.4;\n}"
+    "result": "@main(cond: bool) {\n.entry:\n  a.1: int = const 47;\n  br cond .left .right;\n.left:\n  a.2: int = add a.1 a.1;\n  jmp .zexit;\n.right:\n  a.3: int = mul a.1 a.1;\n  jmp .zexit;\n.zexit:\n  a.4: int = phi a.2 a.3 .left .right;\n  print a.4;\n}",
+    "timings": [
+      "115628800",
+      "107256064",
+      "109957888",
+      "108071936",
+      "118258944",
+      "112152064",
+      "114176000",
+      "111650048",
+      "112282112",
+      "112920064"
+    ]
   },
   {
     "file": "if.bril",
     "directory": "to_ssa",
-    "result": "@main(cond: bool) {\n.entry:\n  br cond .left .right;\n.left:\n  jmp .exit;\n.right:\n  a: int = mul a a;\n  jmp .exit;\n.exit:\n  print a;\n}"
+    "result": "@main(cond: bool) {\n.entry:\n  a: int = const 47;\n  br cond .left .right;\n.left:\n  a: int = add a a;\n  jmp .exit;\n.right:\n  a: int = mul a a;\n  jmp .exit;\n.exit:\n  print a;\n}",
+    "timings": [
+      "113161984",
+      "108595968",
+      "105361152",
+      "104979968",
+      "114460928",
+      "112037120",
+      "111332096",
+      "111603200",
+      "111209984",
+      "110696960"
+    ]
   },
   {
     "file": "loop-branch.bril",
     "directory": "to_ssa",
-    "result": "@func: int {\n  n: int = const 5;\n  ret n;\n}\n@loop(infinite: bool, print: bool) {\n.entry:\n.loop.header:\n  br infinite .loop.body .loop.end;\n.loop.body:\n  br print .loop.print .loop.next;\n.loop.print:\n  v: int = call @func;\n  print v;\n.loop.next:\n  jmp .loop.header;\n.loop.end:\n}\n@main {\n  infinite: bool = const false;\n  print: bool = const true;\n  call @loop infinite print;\n}"
+    "result": "@func: int {\n  n: int = const 5;\n  ret n;\n}\n@loop(infinite: bool, print: bool) {\n.entry:\n.loop.header:\n  br infinite .loop.body .loop.end;\n.loop.body:\n  br print .loop.print .loop.next;\n.loop.print:\n  v: int = call @func;\n  print v;\n.loop.next:\n  jmp .loop.header;\n.loop.end:\n}\n@main {\n  infinite: bool = const false;\n  print: bool = const true;\n  call @loop infinite print;\n}",
+    "timings": [
+      "117911040",
+      "109799168",
+      "109477120",
+      "111534080",
+      "116345088",
+      "116509184",
+      "114759936",
+      "114683136",
+      "115045888",
+      "116328960"
+    ]
   },
   {
     "file": "loop.bril",
     "directory": "to_ssa",
-    "result": "@main {\n.entry:\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  cond: bool = lt i max;\n  br cond .body .exit;\n.body:\n  i: int = add i i;\n  jmp .loop;\n.exit:\n  print i;\n}"
+    "result": "@main {\n.entry:\n  i: int = const 1;\n  jmp .loop;\n.loop:\n  max: int = const 10;\n  cond: bool = lt i max;\n  br cond .body .exit;\n.body:\n  i: int = add i i;\n  jmp .loop;\n.exit:\n  print i;\n}",
+    "timings": [
+      "113915904",
+      "106510848",
+      "107339776",
+      "104701952",
+      "113778944",
+      "109859072",
+      "112045056",
+      "111460096",
+      "111602944",
+      "111473920"
+    ]
   },
   {
     "file": "selfloop.bril",
     "directory": "to_ssa",
-    "result": "@main {\n.entry:\n  one: int = const 1;\n  zero: int = const 0;\n.loop:\n  x: int = sub x one;\n  done: bool = eq x zero;\n.br:\n  br done .exit .loop;\n.exit:\n  print x;\n  ret;\n}"
+    "result": "@main {\n.entry:\n  one: int = const 1;\n  zero: int = const 0;\n  x: int = const 5;\n.loop:\n  x: int = sub x one;\n  done: bool = eq x zero;\n.br:\n  br done .exit .loop;\n.exit:\n  print x;\n  ret;\n}",
+    "timings": [
+      "112276992",
+      "109443840",
+      "110063104",
+      "111080192",
+      "116665856",
+      "115022848",
+      "114088960",
+      "113208064",
+      "115749120",
+      "113697024"
+    ]
   },
   {
     "file": "while.bril",
     "directory": "to_ssa",
-    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  is_term: bool = eq a zero;\n  br is_term .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  a: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print a;\n}"
+    "result": "@main(a: int) {\n.while.cond:\n  zero: int = const 0;\n  is_term: bool = eq a zero;\n  br is_term .while.finish .while.body;\n.while.body:\n  one: int = const 1;\n  a: int = sub a one;\n  jmp .while.cond;\n.while.finish:\n  print a;\n}",
+    "timings": [
+      "114663936",
+      "106470912",
+      "104135936",
+      "103811840",
+      "112435200",
+      "111473152",
+      "111898112",
+      "112024832",
+      "112827136",
+      "112642816"
+    ]
   }
 ]
