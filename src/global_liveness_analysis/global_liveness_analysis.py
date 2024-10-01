@@ -49,20 +49,25 @@ def meet(in_sets):
         result.update(in_set)
     return result
 
-def transfer(block, in_set):
-    out_set = set(in_set)
+def transfer(block, out_set):
+    in_set = set(out_set)
     kills = set()
     gens = set()
 
     for instr in reversed(block):
-        if "dest" in instr:
-            kills.add(instr["dest"])
-        gens.update(arg for arg in instr.get("args", []))
+        if "dest" in instr:  
+            dest_var = instr["dest"]
+            kills.add(dest_var)
+            in_set.discard(dest_var)
+        
+        used_vars = instr.get("args", [])
+        for var in used_vars:
+            if var not in kills: 
+                gens.add(var) 
+                in_set.add(var)  
 
-    out_set = gens | (set(in_set) - kills)
+    return block, in_set
     
-    return block, out_set
-
 def liveness_analysis(prog):
     for fn in prog["functions"]:
         blocks = list(form_blocks(fn["instrs"]))
