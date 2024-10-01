@@ -1,0 +1,10 @@
+@main {
+  x: int = const 10;
+  two: int = const 2;
+  y: int = add x two;
+  x: int = const 20;
+  jmp .end;
+
+.end:
+  print y;
+}

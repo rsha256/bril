@@ -1,0 +1,106 @@
+{
+  "functions": [
+    {
+      "instrs": [
+        {
+          "dest": "y",
+          "op": "const",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "args": [
+            "y"
+          ],
+          "dest": "z",
+          "op": "id",
+          "type": "int"
+        },
+        {
+          "dest": "a",
+          "op": "const",
+          "type": "int",
+          "value": 2
+        },
+        {
+          "label": "entry"
+        },
+        {
+          "dest": "x",
+          "op": "const",
+          "type": "int",
+          "value": 0
+        },
+        {
+          "labels": [
+            "header"
+          ],
+          "op": "jmp"
+        },
+        {
+          "label": "header"
+        },
+        {
+          "args": [
+            "x",
+            "a"
+          ],
+          "dest": "c",
+          "op": "lt",
+          "type": "bool"
+        },
+        {
+          "args": [
+            "c"
+          ],
+          "labels": [
+            "loop",
+            "exit"
+          ],
+          "op": "br"
+        },
+        {
+          "label": "loop"
+        },
+        {
+          "dest": "one",
+          "op": "const",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "args": [
+            "x",
+            "one"
+          ],
+          "dest": "x",
+          "op": "add"
+        },
+        {
+          "args": [
+            "y",
+            "one"
+          ],
+          "dest": "y",
+          "op": "add"
+        },
+        {
+          "labels": [
+            "header"
+          ],
+          "op": "jmp"
+        },
+        {
+          "label": "exit"
+        },
+        {
+          "args": [
+            "x"
+          ],
+          "op": "print"
+        }
+      ],
+      "name": "main"
+    }
+  ]
+}
