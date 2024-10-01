@@ -1,5 +1,5 @@
 # which benchmarks to run
-benchmarks = '../../test/**/*.bril'
+benchmarks = '../../examples/test/df/*.bril'
 # how to extract the performance metric from stderr
 extract = 'total_dyn_inst: (\d+)'
 
@@ -9,9 +9,9 @@ pipeline = [
   "brili -p {args}",
 ]
 
-[runs.local_value_numbering]
+[runs.global_constant_folding]
 pipeline = [
   "bril2json",
-  "python3 local_value_numbering.py",
+  "python3 global_constant_folding.py",
   "brili -p {args}",
 ]
