@@ -57,13 +57,21 @@ def transfer(block, in_set):
     for instr in reversed(block):
         if "dest" in instr:
             kills.add(instr["dest"])
-        gens.update(arg for arg in instr.get("args", []) if arg not in kills)
+        gens.update(arg for arg in instr.get("args", []))
 
     out_set = gens | (set(in_set) - kills)
     
+    kept = []
+    used = set()
+    for instr in reversed(block):
+        if "dest" in instr and (instr["dest"] in in_set or instr["dest"] in used):
+            kept.append(instr)
+        used.update(instr.get("args", []))
+    
+    block = kept[::-1]
     return block, out_set
 
-def constant_propagation_and_folding(prog):
+def liveness_analysis(prog):
     for fn in prog["functions"]:
         blocks = list(form_blocks(fn["instrs"]))
         preds, succs = predecessors_and_successors(blocks)
@@ -97,14 +105,14 @@ def should_keep(instr, used_vars):
 
 if __name__ == "__main__":
     prog = json.load(sys.stdin)
-    constant_propagation_and_folding(prog)
+    liveness_analysis(prog)
     
     # Dead code elimination
-    for fn in prog["functions"]:
+'''    for fn in prog["functions"]:
         used_vars = set()
         for instr in fn["instrs"]:
             args = instr.get("args", [])
             used_vars.update(args)
-        fn["instrs"] = [instr for instr in fn["instrs"] if should_keep(instr, used_vars)]
+        fn["instrs"] = [instr for instr in fn["instrs"] if should_keep(instr, used_vars)]'''
     
     json.dump(prog, sys.stdout, indent=2)
