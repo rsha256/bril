@@ -41,7 +41,6 @@ def predecessors_and_successors(blocks):
     return preds, succs
 
 def meet(in_sets):
-    """Perform the meet operation for sets (set union for liveness)."""
     if not in_sets:
         return set()
     result = set(in_sets[0])
@@ -50,24 +49,18 @@ def meet(in_sets):
     return result
 
 def transfer(block, out_set):
-    in_set = set(out_set)
     kills = set()
     gens = set()
 
     for instr in reversed(block):
-        if "dest" in instr:  
-            dest_var = instr["dest"]
-            kills.add(dest_var)
-            in_set.discard(dest_var)
-        
-        used_vars = instr.get("args", [])
-        for var in used_vars:
-            if var not in kills: 
-                gens.add(var) 
-                in_set.add(var)  
+        if "dest" in instr:
+            kills.add(instr["dest"])
+        gens.update(arg for arg in instr.get("args", []))
 
-    return block, in_set
+    out = gens | (set(out_set) - kills)
     
+    return block, out
+
 def liveness_analysis(prog):
     for fn in prog["functions"]:
         blocks = list(form_blocks(fn["instrs"]))
@@ -80,18 +73,17 @@ def liveness_analysis(prog):
 
         while worklist:
             b = worklist.pop()
-            print(b)
-
             # Compute out[b] as the meet of in[successors]
             out_sets[b] = meet([in_sets[succ] for succ in succs[b]])
 
+            # Propagate constants within the block
             new_block, in_set = transfer(blocks[b], out_sets[b])
 
             if in_sets[b] != in_set:
                 in_sets[b] = in_set
                 worklist.extend(preds[b])
 
-            print(in_sets)
+
             blocks[b] = new_block
 
         for i in range(len(blocks)):
@@ -100,11 +92,11 @@ def liveness_analysis(prog):
             for instr in reversed(blocks[i]):
                 if "dest" not in instr:
                     kept.append(instr)
-                if "dest" in instr and (instr["dest"] in in_sets[i] or instr["dest"] in used):
+                if "dest" in instr and (instr["dest"] in out_sets[i] or instr["dest"] in used):
                     kept.append(instr)
                 used.update(instr.get("args", []))
             blocks[i] = kept[::-1]
-        #print(in_sets)
+    
         # Replace the function instructions with the optimized blocks
         fn["instrs"] = [instr for block in blocks for instr in block]
 
