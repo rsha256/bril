@@ -61,14 +61,6 @@ def transfer(block, in_set):
 
     out_set = gens | (set(in_set) - kills)
     
-    kept = []
-    used = set()
-    for instr in reversed(block):
-        if "dest" in instr and (instr["dest"] in in_set or instr["dest"] in used):
-            kept.append(instr)
-        used.update(instr.get("args", []))
-    
-    block = kept[::-1]
     return block, out_set
 
 def liveness_analysis(prog):
@@ -83,18 +75,31 @@ def liveness_analysis(prog):
 
         while worklist:
             b = worklist.pop()
+            print(b)
+
             # Compute out[b] as the meet of in[successors]
             out_sets[b] = meet([in_sets[succ] for succ in succs[b]])
 
-            # Propagate constants within the block
-            new_block, out_constants = transfer(blocks[b], out_sets[b])
+            new_block, in_set = transfer(blocks[b], out_sets[b])
 
-            if in_sets[b] != out_constants:
-                in_sets[b] = out_constants
+            if in_sets[b] != in_set:
+                in_sets[b] = in_set
                 worklist.extend(preds[b])
 
+            print(in_sets)
             blocks[b] = new_block
 
+        for i in range(len(blocks)):
+            kept = []
+            used = set()
+            for instr in reversed(blocks[i]):
+                if "dest" not in instr:
+                    kept.append(instr)
+                if "dest" in instr and (instr["dest"] in in_sets[i] or instr["dest"] in used):
+                    kept.append(instr)
+                used.update(instr.get("args", []))
+            blocks[i] = kept[::-1]
+        #print(in_sets)
         # Replace the function instructions with the optimized blocks
         fn["instrs"] = [instr for block in blocks for instr in block]
 
@@ -108,7 +113,7 @@ if __name__ == "__main__":
     liveness_analysis(prog)
     
     # Dead code elimination
-'''    for fn in prog["functions"]:
+    '''    for fn in prog["functions"]:
         used_vars = set()
         for instr in fn["instrs"]:
             args = instr.get("args", [])
