@@ -1,0 +1,18 @@
+@main {
+  x: int = const 1;
+  y: int = const 1;
+  zero: int = const 0;
+  cond: bool = gt x zero;
+  br cond .header .body;
+
+.header:
+  two: int = const 2;
+  y: int = add y two;
+
+.body:
+  w: int = add x x;
+  print w;
+  z: int = add y y;
+  print z;
+  print y;
+}
