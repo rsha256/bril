@@ -2,7 +2,7 @@ import json
 import sys
 from collections import defaultdict, deque
 
-TERMINATORS = 'br', 'jmp', 'ret'
+TERMINATORS = ('br', 'jmp', 'ret')
 
 def form_blocks(instrs):
     cur_block = []
@@ -112,6 +112,8 @@ def constant_propagation_and_folding(prog):
             # Compute in[b] as the meet of out[predecessors]
             if preds[b]:
                 in_sets[b] = meet([out_sets[p] for p in preds[b]])
+            else:
+                in_sets[b] = {}
 
             # Propagate constants within the block
             new_block, out_constants = propagate_constants_in_block(blocks[b], in_sets[b])
@@ -125,6 +127,94 @@ def constant_propagation_and_folding(prog):
         # Replace the function instructions with the optimized blocks
         fn["instrs"] = [instr for block in blocks for instr in block]
 
+def local_value_numbering(instructions):
+    value_to_number = {}
+    number_to_value = {}
+    variable_to_number = {}
+    number_to_variable = {}
+    counter = 0
+
+    for instruction in instructions:
+        if "dest" not in instruction:
+            continue
+        if not isinstance(instruction["type"], str):
+            continue
+
+        # Handle non-arithmetic or logic operations
+        if instruction["op"] not in ["add", "mul", "sub", "div", "eq", "lt", "gt", "le", "ge", "not", "and", "or", "id"]:
+            counter += 1
+            number = counter
+            number_to_value[number] = None
+        else:
+            # Collect argument values and perform value numbering
+            arguments = []
+            if "args" in instruction:
+                for idx, argument in enumerate(instruction["args"]):
+                    argument_number = variable_to_number.get(argument)
+                    if argument_number is None:
+                        arguments.append(argument)
+                    else:
+                        if number_to_variable[argument_number][0] != argument:
+                            instruction["args"][idx] = number_to_variable[argument_number][0]
+                        arguments.append(f"#.{argument_number}")
+            if instruction["op"] in ["add", "mul"]:
+                arguments.sort()
+            if instruction["op"] == "const":
+                value_repr = f"const {instruction['value']}"
+            else:
+                value_repr = f"{instruction['op']}{instruction['type']}{arguments}"
+
+            if instruction["op"] == "id":
+                number = variable_to_number.get(instruction["args"][0])
+            else:
+                number = value_to_number.get(value_repr)
+
+            if number is None:
+                counter += 1
+                number = counter
+                value_to_number[value_repr] = number
+                number_to_value[number] = value_repr
+            else:
+                instruction["op"] = "id"
+                instruction["args"] = [number_to_variable[number][0]]
+                instruction.pop("funcs", None)
+
+        # Remove the old number for the destination variable if it exists
+        if instruction["dest"] in variable_to_number:
+            old_number = variable_to_number[instruction["dest"]]
+            number_to_variable[old_number].remove(instruction["dest"])
+            if len(number_to_variable[old_number]) == 0:
+                old_value = number_to_value.get(old_number)
+                if old_value is not None:
+                    value_to_number.pop(old_value)
+                number_to_value.pop(old_number)
+
+        # Update mappings for the current destination
+        variable_to_number[instruction["dest"]] = number
+        if number not in number_to_variable:
+            number_to_variable[number] = [instruction["dest"]]
+        else:
+            number_to_variable[number].append(instruction["dest"])
+
+    return instructions
+
+def apply_lvn(prog):
+    for function in prog["functions"]:
+        optimized_instructions = []
+        current_block = []
+        for instruction in function["instrs"]:
+            if "op" in instruction:
+                current_block.append(instruction)
+                if instruction["op"] in TERMINATORS:
+                    optimized_instructions += local_value_numbering(current_block)
+                    current_block = []
+            else:
+                optimized_instructions += local_value_numbering(current_block)
+                current_block = []
+                optimized_instructions.append(instruction)
+        optimized_instructions += local_value_numbering(current_block)
+        function["instrs"] = optimized_instructions
+
 def should_keep(instr, used_vars):
     # Labels and instructions without 'dest' are kept
     if 'op' not in instr or 'dest' not in instr:
@@ -132,16 +222,64 @@ def should_keep(instr, used_vars):
     # Keep the instruction if its destination variable is used
     return instr['dest'] in used_vars
 
+def liveness_analysis(prog):
+    for fn in prog["functions"]:
+        blocks = list(form_blocks(fn["instrs"]))
+        preds, succs = predecessors_and_successors(blocks)
+
+        # Initialize in/out sets for each block
+        in_sets = [set() for _ in blocks]
+        out_sets = [set() for _ in blocks]
+        worklist = deque(range(len(blocks)))
+
+        while worklist:
+            b = worklist.pop()
+            # Compute out[b] as the meet of in[successors]
+            out_sets[b] = set()
+            for succ in succs[b]:
+                out_sets[b].update(in_sets[succ])
+
+            # Compute in[b] = use[b] ∪ (out[b] - def[b])
+            use = set()
+            defs = set()
+            for instr in blocks[b]:
+                if 'args' in instr:
+                    use.update(instr['args'])
+                if 'dest' in instr:
+                    defs.add(instr['dest'])
+            in_set = use.union(out_sets[b] - defs)
+
+            if in_sets[b] != in_set:
+                in_sets[b] = in_set
+                worklist.extend(preds[b])
+
+        # Dead Code Elimination based on liveness
+        for i, block in enumerate(blocks):
+            kept = []
+            used = set(out_sets[i])
+            for instr in reversed(block):
+                if "dest" not in instr:
+                    kept.append(instr)
+                elif instr["dest"] in used:
+                    kept.append(instr)
+                # Update the used set with the arguments of the instruction
+                if "args" in instr:
+                    used.update(instr["args"])
+            blocks[i] = kept[::-1]
+
+        # Replace the function instructions with the optimized blocks
+        fn["instrs"] = [instr for block in blocks for instr in block]
+
 if __name__ == "__main__":
     prog = json.load(sys.stdin)
+    
+    # Step 1: Constant Propagation and Folding
     constant_propagation_and_folding(prog)
-    # Now do dead code elimination
-    for fn in prog["functions"]:
-        # Collect all variables that are used
-        used_vars = set()
-        for instr in fn["instrs"]:
-            args = instr.get("args", [])
-            used_vars.update(args)
-        # Keep instructions whose destination variables are used
-        fn["instrs"] = [instr for instr in fn["instrs"] if should_keep(instr, used_vars)]
+    
+    # Step 2: Local Value Numbering (LVN)
+    apply_lvn(prog)
+    
+    # Step 3: Liveness Analysis and Dead Code Elimination
+    liveness_analysis(prog)
+    
     json.dump(prog, sys.stdout, indent=2)
