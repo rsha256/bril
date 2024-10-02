@@ -1,6 +1,6 @@
 # which benchmarks to run
-# benchmarks = '../../examples/test/**/*.bril'
 benchmarks = '../../benchmarks/**/*.bril'
+# benchmarks = '../../examples/test/**/*.bril'
 # how to extract the performance metric from stderr
 extract = 'total_dyn_inst: (\d+)'
 
@@ -10,9 +10,9 @@ pipeline = [
   "brili -p {args}",
 ]
 
-[runs.global_liveness_analysis]
+[runs.strong_liveness_analysis]
 pipeline = [
   "bril2json",
-  "python3 global_liveness_analysis.py",
+  "python3 strong_liveness_analysis.py",
   "brili -p {args}",
 ]

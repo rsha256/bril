@@ -1,0 +1,15 @@
+@main {
+  x: int = const 1;
+  y: int = const 1;
+  zero: int = const 0;
+  cond: bool = gt x zero;
+  br cond .header .body;
+.header:
+  y: int = const 3;
+.body:
+  w: int = const 2;
+  print w;
+  z: int = add y y;
+  print z;
+  print y;
+}

@@ -2,11 +2,7 @@ import json
 import sys
 from collections import defaultdict, deque
 
-# Define terminator operations
 TERMINATORS = ('br', 'jmp', 'ret')
-
-# Define operations that are considered meaningful
-# Include 'call', 'print', 'ret', 'br', 'jmp' as meaningful operations
 MEANINGFUL_OPS = {'ret', 'br', 'jmp', 'call', 'print', 'input'}
 
 def form_blocks(instrs):
@@ -197,102 +193,8 @@ def strong_liveness_analysis(prog):
         
         fn["instrs"] = optimized_instrs
 
-def local_value_numbering(instructions):
-    """
-    Perform local value numbering to eliminate redundant computations.
-    """
-    value_to_number = {}
-    number_to_value = {}
-    variable_to_number = {}
-    number_to_variable = defaultdict(list)
-    counter = 0
-
-    for instruction in instructions:
-        if "dest" not in instruction:
-            continue
-        if "type" not in instruction or not isinstance(instruction["type"], str):
-            continue
-
-        op = instruction["op"]
-        dest = instruction["dest"]
-
-        # Handle non-arithmetic or logic operations
-        if op not in ["add", "mul", "sub", "div", "eq", "lt", "gt", "le", "ge", "not", "and", "or", "id", "fadd", "fmul", "fsub", "fdiv", "flt"]:
-            counter += 1
-            number = counter
-            number_to_value[number] = None
-        else:
-            # Collect argument values and perform value numbering
-            arguments = []
-            for idx, argument in enumerate(instruction.get("args", [])):
-                argument_number = variable_to_number.get(argument)
-                if argument_number is None:
-                    arguments.append(argument)
-                else:
-                    # Replace argument with its value number
-                    arguments.append(f"#.{argument_number}")
-            if op in ["add", "mul", "fadd", "fmul"]:
-                arguments.sort()
-            if op == "const":
-                value_repr = f"const {instruction['value']}"
-            elif op.startswith('f'):
-                # For floating operations
-                value_repr = f"{op}{instruction['type']}{arguments}"
-            else:
-                value_repr = f"{op}{instruction['type']}{arguments}"
-
-            if op == "id":
-                number = variable_to_number.get(instruction["args"][0])
-            else:
-                number = value_to_number.get(value_repr)
-
-            if number is None:
-                counter += 1
-                number = counter
-                value_to_number[value_repr] = number
-                number_to_value[number] = value_repr
-            else:
-                # Replace with an identity operation
-                instruction["op"] = "id"
-                instruction["args"] = [number_to_variable[number][0]]
-                instruction.pop("funcs", None)
-
-        # Remove the old number for the destination variable if it exists
-        if dest in variable_to_number:
-            old_number = variable_to_number[dest]
-            number_to_variable[old_number].remove(dest)
-            if not number_to_variable[old_number]:
-                old_value = number_to_value.get(old_number)
-                if old_value is not None:
-                    value_to_number.pop(old_value, None)
-                number_to_value.pop(old_number, None)
-
-        # Update mappings for the current destination
-        variable_to_number[dest] = number
-        number_to_variable[number].append(dest)
-
-    return instructions
-
-def apply_lvn(prog):
-    """
-    Apply local value numbering to each function in the program.
-    """
-    for function in prog["functions"]:
-        optimized_instructions = []
-        current_block = []
-        for instruction in function["instrs"]:
-            if 'op' in instruction and instruction['op'] in TERMINATORS:
-                current_block.append(instruction)
-                optimized_instructions += local_value_numbering(current_block)
-                current_block = []
-            else:
-                current_block.append(instruction)
-        if current_block:
-            optimized_instructions += local_value_numbering(current_block)
-        function["instrs"] = optimized_instructions
-
 if __name__ == "__main__":
     prog = json.load(sys.stdin)
     strong_liveness_analysis(prog)
-    apply_lvn(prog)
+    # apply_lvn(prog)
     json.dump(prog, sys.stdout, indent=2)
