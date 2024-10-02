@@ -1,5 +1,5 @@
 # which benchmarks to run
-benchmarks = '../../examples/test/df/*.bril'
+benchmarks = '../../benchmarks/**/*.bril'
 # how to extract the performance metric from stderr
 extract = 'total_dyn_inst: (\d+)'
 

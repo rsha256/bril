@@ -100,21 +100,7 @@ def liveness_analysis(prog):
         # Replace the function instructions with the optimized blocks
         fn["instrs"] = [instr for block in blocks for instr in block]
 
-def should_keep(instr, used_vars):
-    if 'op' not in instr or 'dest' not in instr:
-        return True
-    return instr['dest'] in used_vars
-
 if __name__ == "__main__":
     prog = json.load(sys.stdin)
     liveness_analysis(prog)
-    
-    # Dead code elimination
-    '''    for fn in prog["functions"]:
-        used_vars = set()
-        for instr in fn["instrs"]:
-            args = instr.get("args", [])
-            used_vars.update(args)
-        fn["instrs"] = [instr for instr in fn["instrs"] if should_keep(instr, used_vars)]'''
-    
     json.dump(prog, sys.stdout, indent=2)
