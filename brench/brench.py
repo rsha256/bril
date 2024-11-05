@@ -148,7 +148,8 @@ def brench(config_path, files, jobs, plot):
             data.setdefault(kind, {})[bench] = parse(result)
 
         # Sort the benchmarks by the first kind
-        benchmark_names = list(list(data.values())[0].keys())
+        baseline_data = data.get('baseline', {})
+        benchmark_names = [b for b in baseline_data if baseline_data[b] != 0]
         first_kind = list(data.keys())[0]
         benchmark_names.sort(key=lambda b: data[first_kind][b])
 

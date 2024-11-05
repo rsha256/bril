@@ -1,0 +1,154 @@
+@rand(seq: ptr<int>, max: int): int {
+.sentinel_entry:
+  a.0: int = const 25214903917;
+  c.0: int = const 11;
+  m.0: int = const 281474976710656;
+  x.0: int = load seq;
+  ax.0: int = mul a.0 x.0;
+  axpc.0: int = add ax.0 c.0;
+  next.0: int = div axpc.0 m.0;
+  next.1: int = mul next.0 m.0;
+  next.2: int = sub axpc.0 next.1;
+  store seq next.2;
+  val.0: int = div next.2 max;
+  val.1: int = mul val.0 max;
+  val.2: int = sub next.2 val.1;
+  ret val.2;
+}
+@randarray(size: int, rng: ptr<int>): ptr<int> {
+.sentinel_entry:
+  arr.0: ptr<int> = alloc size;
+  i.0: int = const 0;
+  max.0: int = const 1000;
+  one.0: int = const 1;
+.loop:
+  i.1: int = phi i.0 i.2 .sentinel_entry .loop_end;
+  cond.1: bool = lt i.1 size;
+  br cond.1 .body .done;
+.body:
+  val.1: int = call @rand rng max.0;
+  loc.1: ptr<int> = ptradd arr.0 i.1;
+  store loc.1 val.1;
+.loop_end:
+  i.2: int = add i.1 one.0;
+  jmp .loop;
+.done:
+  ret arr.0;
+}
+@printarray(size: int, arr: ptr<int>) {
+.sentinel_entry:
+  i.0: int = const 0;
+  one.0: int = const 1;
+.loop:
+  i.1: int = phi i.0 i.2 .sentinel_entry .loop_end;
+  cond.1: bool = lt i.1 size;
+  br cond.1 .body .done;
+.body:
+  loc.1: ptr<int> = ptradd arr i.1;
+  val.1: int = load loc.1;
+  print val.1;
+.loop_end:
+  i.2: int = add i.1 one.0;
+  jmp .loop;
+.done:
+  ret;
+}
+@matmul(size: int, arr1: ptr<int>, arr2: ptr<int>, dest: ptr<int>) {
+.sentinel_entry:
+  one.0: int = const 1;
+  row.0: int = const 0;
+.row.loop:
+  i.0: int = phi __undefined i.1 .sentinel_entry .row.loop_end;
+  idx.0: int = phi __undefined idx.1 .sentinel_entry .row.loop_end;
+  lidx.0: int = phi __undefined lidx.1 .sentinel_entry .row.loop_end;
+  loc.0: ptr<int> = phi __undefined loc.1 .sentinel_entry .row.loop_end;
+  lval.0: int = phi __undefined lval.1 .sentinel_entry .row.loop_end;
+  lvalloc.0: ptr<int> = phi __undefined lvalloc.1 .sentinel_entry .row.loop_end;
+  prod.0: int = phi __undefined prod.1 .sentinel_entry .row.loop_end;
+  ridx.0: int = phi __undefined ridx.1 .sentinel_entry .row.loop_end;
+  row.1: int = phi row.0 row.2 .sentinel_entry .row.loop_end;
+  rval.0: int = phi __undefined rval.1 .sentinel_entry .row.loop_end;
+  rvalloc.0: ptr<int> = phi __undefined rvalloc.1 .sentinel_entry .row.loop_end;
+  sum.0: int = phi __undefined sum.1 .sentinel_entry .row.loop_end;
+  cond.1: bool = lt row.1 size;
+  br cond.1 .row.body .row.done;
+.row.body:
+  col.1: int = const 0;
+.col.loop:
+  col.2: int = phi col.1 col.3 .row.body .col.loop_end;
+  i.1: int = phi i.0 i.3 .row.body .col.loop_end;
+  idx.1: int = phi idx.0 idx.3 .row.body .col.loop_end;
+  lidx.1: int = phi lidx.0 lidx.2 .row.body .col.loop_end;
+  loc.1: ptr<int> = phi loc.0 loc.2 .row.body .col.loop_end;
+  lval.1: int = phi lval.0 lval.2 .row.body .col.loop_end;
+  lvalloc.1: ptr<int> = phi lvalloc.0 lvalloc.2 .row.body .col.loop_end;
+  prod.1: int = phi prod.0 prod.2 .row.body .col.loop_end;
+  ridx.1: int = phi ridx.0 ridx.2 .row.body .col.loop_end;
+  rval.1: int = phi rval.0 rval.2 .row.body .col.loop_end;
+  rvalloc.1: ptr<int> = phi rvalloc.0 rvalloc.2 .row.body .col.loop_end;
+  sum.1: int = phi sum.0 sum.3 .row.body .col.loop_end;
+  cond.3: bool = lt col.2 size;
+  br cond.3 .col.body .col.done;
+.col.body:
+  sum.2: int = const 0;
+  i.2: int = const 0;
+.sum.loop:
+  i.3: int = phi i.2 i.4 .col.body .sum.loop_end;
+  lidx.2: int = phi lidx.1 lidx.4 .col.body .sum.loop_end;
+  lval.2: int = phi lval.1 lval.3 .col.body .sum.loop_end;
+  lvalloc.2: ptr<int> = phi lvalloc.1 lvalloc.3 .col.body .sum.loop_end;
+  prod.2: int = phi prod.1 prod.3 .col.body .sum.loop_end;
+  ridx.2: int = phi ridx.1 ridx.4 .col.body .sum.loop_end;
+  rval.2: int = phi rval.1 rval.3 .col.body .sum.loop_end;
+  rvalloc.2: ptr<int> = phi rvalloc.1 rvalloc.3 .col.body .sum.loop_end;
+  sum.3: int = phi sum.2 sum.4 .col.body .sum.loop_end;
+  cond.5: bool = lt i.3 size;
+  br cond.5 .sum.body .sum.done;
+.sum.body:
+  lidx.3: int = mul row.1 size;
+  lidx.4: int = add lidx.3 i.3;
+  ridx.3: int = mul i.3 size;
+  ridx.4: int = add ridx.3 col.2;
+  lvalloc.3: ptr<int> = ptradd arr1 lidx.4;
+  lval.3: int = load lvalloc.3;
+  rvalloc.3: ptr<int> = ptradd arr2 ridx.4;
+  rval.3: int = load rvalloc.3;
+  prod.3: int = mul lval.3 rval.3;
+  sum.4: int = add sum.3 prod.3;
+.sum.loop_end:
+  i.4: int = add i.3 one.0;
+  jmp .sum.loop;
+.sum.done:
+  idx.2: int = mul row.1 size;
+  idx.3: int = add idx.2 col.2;
+  loc.2: ptr<int> = ptradd dest idx.3;
+  store loc.2 sum.3;
+.col.loop_end:
+  col.3: int = add col.2 one.0;
+  jmp .col.loop;
+.col.done:
+.row.loop_end:
+  row.2: int = add row.1 one.0;
+  jmp .row.loop;
+.row.done:
+  ret;
+}
+@main(size: int, seed: int) {
+.sentinel_entry:
+  one.0: int = const 1;
+  rng.0: ptr<int> = alloc one.0;
+  store rng.0 seed;
+  sqsize.0: int = mul size size;
+  arr1.0: ptr<int> = call @randarray sqsize.0 rng.0;
+  arr2.0: ptr<int> = call @randarray sqsize.0 rng.0;
+  dest.0: ptr<int> = call @randarray sqsize.0 rng.0;
+  call @matmul size arr1.0 arr2.0 dest.0;
+  call @printarray sqsize.0 arr1.0;
+  call @printarray sqsize.0 arr2.0;
+  call @printarray sqsize.0 dest.0;
+  free arr1.0;
+  free arr2.0;
+  free dest.0;
+  free rng.0;
+  ret;
+}
