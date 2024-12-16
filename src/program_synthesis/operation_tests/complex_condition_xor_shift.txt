@@ -1,0 +1,11 @@
+x := 3;
+y := 6;
+temp := x ^ y;
+res := (temp ? x : y) << 1;
+res
+---
+hx := 1;
+hy := 1;
+temp := hx ^ hy;
+res := (temp ? hx : hy) << 1;
+res

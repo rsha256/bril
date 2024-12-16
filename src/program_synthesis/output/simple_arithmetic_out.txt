@@ -1,0 +1,7 @@
+Program 1:
+x := 2;
+y := x * 3;
+x + y
+Program 2 (with holes filled):
+2 := 10;
+(2 * 3) + x

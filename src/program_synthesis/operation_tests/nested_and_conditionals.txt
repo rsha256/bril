@@ -1,0 +1,9 @@
+x := 1;
+y := 2;
+res := x ? (y ? (x+y) : (x-y)) : (y ? (y-x) : 0);
+res
+---
+hx := 1;
+hy := 0;
+res := hx ? (hy ? (hx+hy) : (hx-hy)) : (hy ? (hy-hx) : 0);
+res

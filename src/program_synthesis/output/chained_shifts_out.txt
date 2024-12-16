@@ -1,0 +1,10 @@
+Program 1:
+a := 4;
+b := a << 2;
+c := b >> 1;
+c
+Program 2 (with holes filled):
+251 := 0;
+17 := 251 << 2;
+c := 17 >> 1;
+c

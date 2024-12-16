@@ -1,0 +1,10 @@
+Program 1:
+x := 1;
+y := 2;
+res := x ? y ? x + y : x - y : y ? y - x : 0;
+res
+Program 2 (with holes filled):
+86 := 1;
+173 := 0;
+res := 86 ? 173 ? 86 + 173 : 86 - 173 : 173 ? 173 - 86 : 0;
+res

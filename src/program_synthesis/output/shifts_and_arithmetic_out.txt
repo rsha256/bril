@@ -1,0 +1,9 @@
+Program 1:
+a := 10;
+b := 1;
+c := (a << b) + (a >> b);
+c
+Program 2 (with holes filled):
+215 := 0;
+c := (215 << 1) + (215 >> 1);
+c

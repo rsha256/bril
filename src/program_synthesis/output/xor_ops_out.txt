@@ -1,0 +1,10 @@
+Program 1:
+p := 5;
+q := 3;
+r := p ^ q;
+r
+Program 2 (with holes filled):
+6 := 0;
+0 := 3;
+r := 6 ^ 0;
+r

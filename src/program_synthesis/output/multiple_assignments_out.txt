@@ -1,0 +1,10 @@
+Program 1:
+x := 5;
+y := x + 7;
+z := (y - 2) * x;
+z
+Program 2 (with holes filled):
+1 := 0;
+254 := 1 + 7;
+z := (254 - 2) * 1;
+z

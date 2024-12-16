@@ -1,0 +1,7 @@
+Program 1:
+tmp := a;
+a := b;
+b := tmp;
+a - b
+Program 2 (with holes filled):
+(0 ? a : b) - (255 ? a : b)

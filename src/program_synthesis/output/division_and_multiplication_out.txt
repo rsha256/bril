@@ -1,0 +1,10 @@
+Program 1:
+m := 8;
+n := 2;
+o := (m / n) * (m + n);
+o
+Program 2 (with holes filled):
+160 := 1;
+0 := 1;
+o := (160 / 0) * (160 + 0);
+o

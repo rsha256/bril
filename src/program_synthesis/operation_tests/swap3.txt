@@ -1,0 +1,9 @@
+tmp := a;
+a := b;
+b := tmp;
+a - b
+---
+a := (hb1 ? a : b) ^ (hb2 ? a : b);
+b := (hb3 ? a : b) ^ (hb4 ? a : b);
+a := (hb5 ? a : b) ^ (hb6 ? a : b);
+a - b

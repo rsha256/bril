@@ -1,0 +1,9 @@
+Program 1:
+x := 10;
+y := -x;
+res := x + y;
+res
+Program 2 (with holes filled):
+hx := 0;
+res := hx + -hx;
+res

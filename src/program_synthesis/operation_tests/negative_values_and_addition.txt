@@ -1,0 +1,8 @@
+x := 10;
+y := -x;
+res := x + y;
+res
+---
+hx := 0;
+res := hx + (-hx);
+res
