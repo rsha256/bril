@@ -266,6 +266,45 @@ def visualize_ast(tree, output_path):
     add_node(tree)
     dot.render(output_path, format='png', cleanup=True)
 
+
+def process_source(source, output_dir, visual_dir):
+    # This function:
+    # 1. Parses the source which contains two programs separated by ---
+    # 2. Synthesizes and visualizes
+    # 3. Returns a dict with { 'output': string_of_results, 'ast1': 'path/to/ast1.png', 'ast2': 'path/to/ast2.png' }
+
+    parser = lark.Lark(GRAMMAR)
+    if '---' not in source:
+        return {'error': "No '---' delimiter found."}
+
+    src1, src2 = source.split('---')
+    tree1 = parser.parse(src1.strip())
+    tree2 = parser.parse(src2.strip())
+
+    model = synthesize(tree1, tree2)
+
+    output_content = []
+    output_content.append("Program 1:\n")
+    output_content.append(pretty(tree1))
+    output_content.append("\nProgram 2 (with holes filled):\n")
+    output_content.append(pretty(tree2, model_values(model)))
+
+    # Write output to a file or just return as string
+    result_str = ''.join(output_content)
+
+    # Visualize
+    base_name = "uploaded"
+    ast1_path = os.path.join(visual_dir, f'ast1_{base_name}')
+    ast2_path = os.path.join(visual_dir, f'ast2_{base_name}')
+    visualize_ast(tree1, ast1_path)
+    visualize_ast(tree2, ast2_path)
+
+    return {
+      'output': result_str,
+      'ast1': ast1_path + ".png",
+      'ast2': ast2_path + ".png"
+    }
+
 if __name__ == '__main__':
     parser = lark.Lark(GRAMMAR)
 
